@@ -22,6 +22,7 @@ function toggleTheme() {
 }
 
 // Check for saved theme preference or respect OS preference
+// Add touch support for mobile devices
 document.addEventListener('DOMContentLoaded', function() {
     const html = document.documentElement;
     const themeToggleIcon = document.querySelector('.theme-toggle i');
@@ -61,4 +62,58 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.transform = 'translateY(0)';
         });
     });
+    
+    // Add touch support for mobile devices
+    const interests = document.querySelectorAll('.interest');
+    interests.forEach(interest => {
+        interest.addEventListener('touchstart', function() {
+            this.style.transform = 'translateY(-3px)';
+        }, {passive: true});
+        
+        interest.addEventListener('touchend', function() {
+            this.style.transform = 'translateY(0)';
+        }, {passive: true});
+    });
+    
+    // Improve mobile scrolling experience
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+    
+    // Add swipe detection for theme toggle on mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    document.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, {passive: true});
+    
+    document.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, {passive: true});
+    
+    function handleSwipe() {
+        const swipeThreshold = 100;
+        if (touchEndX - touchStartX > swipeThreshold) {
+            // Swipe right - toggle to light theme
+            if (document.documentElement.getAttribute('data-theme') === 'dark') {
+                toggleTheme();
+            }
+        } else if (touchStartX - touchEndX > swipeThreshold) {
+            // Swipe left - toggle to dark theme
+            if (document.documentElement.getAttribute('data-theme') === 'light') {
+                toggleTheme();
+            }
+        }
+    }
 });
